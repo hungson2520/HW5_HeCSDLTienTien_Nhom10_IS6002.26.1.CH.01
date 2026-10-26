@@ -1,0 +1,57 @@
+{
+ "file": "10_top_k_pipelining_sap_xep.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "10a",
+   "title": "Chua toi uu: sap xep ca bang (khong du bo nho => sap xep ngoai, Muc 18.2)",
+   "plan": "Sort",
+   "cost": 27527.5,
+   "est_rows": 200008,
+   "act_rows": 200008.0,
+   "blocks": 2632,
+   "ms": 130.415,
+   "ms_all": [
+    131.423,
+    126.601,
+    130.261,
+    130.415,
+    141.381
+   ]
+  },
+  {
+   "label": "10b",
+   "title": "LIMIT 10, chua co chi muc: chi giu 10 dong tot nhat (top-N heapsort)",
+   "plan": "Limit → Sort",
+   "cost": 8951.21,
+   "est_rows": 200008,
+   "act_rows": 10.0,
+   "blocks": 2629,
+   "ms": 44.32,
+   "ms_all": [
+    44.32,
+    44.408,
+    46.08,
+    43.228,
+    43.598
+   ]
+  },
+  {
+   "label": "10c",
+   "title": "LIMIT 10, co chi muc tren Salary: doc 10 dong cuoi cua chi muc roi dung",
+   "plan": "Limit → Index Scan Backward using idx_employee_salary on employee",
+   "cost": 1.21,
+   "est_rows": 200008,
+   "act_rows": 10.0,
+   "blocks": 13,
+   "ms": 0.064,
+   "ms_all": [
+    0.064,
+    0.065,
+    0.064,
+    0.064,
+    0.068
+   ]
+  }
+ ]
+}

@@ -1,0 +1,68 @@
+{
+ "file": "01_heuristic_cay_truy_van.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "1a",
+   "title": "Cay ban dau (Hinh 19.2a) la tich Descartes 3 bang: bao nhieu dong?",
+   "plan": null,
+   "cost": null,
+   "est_rows": null,
+   "act_rows": null,
+   "blocks": null,
+   "ms": null,
+   "ms_all": []
+  },
+  {
+   "label": "1b",
+   "title": "Chua toi uu: JOIN ca 3 bang roi moi loc (MATERIALIZED cam day phep loc xuong)",
+   "plan": "CTE Scan on j",
+   "cost": 65926.44,
+   "est_rows": 1,
+   "act_rows": 347.0,
+   "blocks": 9015,
+   "ms": 772.459,
+   "ms_all": [
+    763.532,
+    780.212,
+    785.351,
+    772.459,
+    766.899
+   ]
+  },
+  {
+   "label": "1c",
+   "title": "Loc truoc nhung thu tu do (Hinh 19.2b): EMPLOYEE JOIN WORKS_ON truoc",
+   "plan": "Hash Join",
+   "cost": 38857.86,
+   "est_rows": 350,
+   "act_rows": 347.0,
+   "blocks": 9002,
+   "ms": 351.677,
+   "ms_all": [
+    351.677,
+    358.987,
+    353.424,
+    348.068,
+    345.403
+   ]
+  },
+  {
+   "label": "1d",
+   "title": "Cau SQL goc cua sach, de PostgreSQL tu toi uu (Hinh 19.2c-e)",
+   "plan": "Nested Loop",
+   "cost": 1784.89,
+   "est_rows": 350,
+   "act_rows": 347.0,
+   "blocks": 2506,
+   "ms": 2.849,
+   "ms_all": [
+    2.849,
+    2.627,
+    4.206,
+    2.724,
+    2.975
+   ]
+  }
+ ]
+}

@@ -1,0 +1,57 @@
+{
+ "file": "04_view_vat_chat_hoa.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "4a",
+   "title": "Tinh tu bang goc moi lan hoi",
+   "plan": "HashAggregate",
+   "cost": 6701.41,
+   "est_rows": 50,
+   "act_rows": 50.0,
+   "blocks": 2630,
+   "ms": 68.299,
+   "ms_all": [
+    68.299,
+    67.594,
+    68.066,
+    68.842,
+    68.526
+   ]
+  },
+  {
+   "label": "4b",
+   "title": "Doc tu view vat chat hoa",
+   "plan": "Seq Scan on mv_dept_info",
+   "cost": 16.4,
+   "est_rows": 640,
+   "act_rows": 50.0,
+   "blocks": 1,
+   "ms": 0.014,
+   "ms_all": [
+    0.014,
+    0.014,
+    0.014,
+    0.014,
+    0.013
+   ]
+  },
+  {
+   "label": "4c",
+   "title": "REFRESH: tinh lai ca view",
+   "plan": null,
+   "cost": null,
+   "est_rows": null,
+   "act_rows": null,
+   "blocks": null,
+   "ms": 59.381,
+   "ms_all": [
+    58.687,
+    58.255,
+    59.905,
+    59.831,
+    59.381
+   ]
+  }
+ ]
+}

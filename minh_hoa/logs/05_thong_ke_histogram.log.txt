@@ -1,0 +1,88 @@
+>>> [5a] Thong ke cot Dno trong catalog: so gia tri khac nhau, gia tri hay gap
+ n_distinct | gia_tri_hay_gap |           ty_le           
+------------+-----------------+---------------------------
+         49 | {5,4,29}        | {0.3011,0.09686667,0.014}
+(1 row)
+
+>>> [5b] Histogram cot Salary (do cao bang nhau, 100 ngan): cac moc cach 10 ngan
+                                                   moc                                                    
+----------------------------------------------------------------------------------------------------------
+ {25000.00,46000.00,52300.00,59000.00,65500.00,75300.00,93700.00,112100.00,147800.00,196100.00,499800.00}
+(1 row)
+
+>>> [5c] Dno = 1: uoc tinh dung 1 dong => dung chi muc
+                                                          QUERY PLAN                                                           
+-------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using idx_employee_dno on employee  (cost=0.29..8.31 rows=1 width=70) (actual time=0.029..0.030 rows=1.00 loops=1)
+   Index Cond: (dno = 1)
+   Index Searches: 1
+   Buffers: shared hit=1 read=2
+ Planning:
+   Buffers: shared hit=71 read=1
+ Planning Time: 1.325 ms
+ Execution Time: 0.049 ms
+(8 rows)
+
+>>> [5d] Dno = 5: uoc tinh dung ~60.000 dong => doi ke hoach
+                                                              QUERY PLAN                                                              
+--------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on employee  (cost=679.02..4060.79 rows=60222 width=70) (actual time=1.850..8.909 rows=59953.00 loops=1)
+   Recheck Cond: (dno = 5)
+   Heap Blocks: exact=2629
+   Buffers: shared hit=2630 read=51
+   ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..663.96 rows=60222 width=0) (actual time=1.636..1.636 rows=59953.00 loops=1)
+         Index Cond: (dno = 5)
+         Index Searches: 1
+         Buffers: shared hit=1 read=51
+ Planning Time: 0.030 ms
+ Execution Time: 10.175 ms
+(10 rows)
+
+>>> [5e] Thong ke CU: van tuong phong 1 co 1 nguoi
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=23.90..23.91 rows=1 width=40) (actual time=196.074..196.075 rows=1.00 loops=1)
+   Buffers: shared hit=242981
+   ->  Nested Loop  (cost=0.72..23.88 rows=4 width=5) (actual time=0.014..171.914 rows=299758.00 loops=1)
+         Buffers: shared hit=242981
+         ->  Index Scan using idx_employee_dno on employee e  (cost=0.29..8.31 rows=1 width=10) (actual time=0.006..6.613 rows=59954.00 loops=1)
+               Index Cond: (dno = 1)
+               Index Searches: 1
+               Buffers: shared hit=837
+         ->  Index Scan using pk_works_on on works_on w  (cost=0.42..15.51 rows=5 width=15) (actual time=0.002..0.002 rows=5.00 loops=59954)
+               Index Cond: (essn = e.ssn)
+               Index Searches: 59954
+               Buffers: shared hit=242144
+ Planning:
+   Buffers: shared hit=142
+ Planning Time: 1.418 ms
+ Execution Time: 196.108 ms
+(16 rows)
+
+>>> [5f] Sau ANALYZE: uoc tinh dung, doi ke hoach
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=26132.20..26132.21 rows=1 width=40) (actual time=166.642..166.643 rows=1.00 loops=1)
+   Buffers: shared hit=7207
+   ->  Hash Join  (cost=5640.58..24635.84 rows=299273 width=5) (actual time=12.741..142.432 rows=299758.00 loops=1)
+         Hash Cond: (w.essn = e.ssn)
+         Buffers: shared hit=7207
+         ->  Seq Scan on works_on w  (cost=0.00..16370.16 rows=1000016 width=15) (actual time=0.010..30.857 rows=1000016.00 loops=1)
+               Buffers: shared hit=6370
+         ->  Hash  (cost=4892.38..4892.38 rows=59856 width=10) (actual time=12.591..12.591 rows=59954.00 loops=1)
+               Buckets: 65536  Batches: 1  Memory Usage: 2972kB
+               Buffers: shared hit=837
+               ->  Bitmap Heap Scan on employee e  (cost=728.18..4892.38 rows=59856 width=10) (actual time=1.123..6.835 rows=59954.00 loops=1)
+                     Recheck Cond: (dno = 1)
+                     Heap Blocks: exact=789
+                     Buffers: shared hit=837
+                     ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..713.21 rows=59856 width=0) (actual time=1.063..1.063 rows=59954.00 loops=1)
+                           Index Cond: (dno = 1)
+                           Index Searches: 1
+                           Buffers: shared hit=48
+ Planning:
+   Buffers: shared hit=40
+ Planning Time: 1.573 ms
+ Execution Time: 166.967 ms
+(22 rows)
+

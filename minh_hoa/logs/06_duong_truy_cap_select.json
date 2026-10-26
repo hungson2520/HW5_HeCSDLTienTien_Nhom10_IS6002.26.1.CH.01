@@ -1,0 +1,125 @@
+{
+ "file": "06_duong_truy_cap_select.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "6a",
+   "title": "OP1 Ssn = 123456789, khong dung chi muc (S1 quet ca bang: CS1 = b khoi)",
+   "plan": "Seq Scan on employee",
+   "cost": 5129.1,
+   "est_rows": 1,
+   "act_rows": 1.0,
+   "blocks": 2629,
+   "ms": 13.411,
+   "ms_all": [
+    13.029,
+    13.411,
+    14.213,
+    13.432,
+    12.975
+   ]
+  },
+  {
+   "label": "6b",
+   "title": "OP1, dung chi muc khoa chinh (S6a: CS6a = x + 1 khoi)",
+   "plan": "Index Scan using employee_pkey on employee",
+   "cost": 8.44,
+   "est_rows": 1,
+   "act_rows": 1.0,
+   "blocks": 4,
+   "ms": 0.025,
+   "ms_all": [
+    0.03,
+    0.025,
+    0.024,
+    0.026,
+    0.023
+   ]
+  },
+  {
+   "label": "6c",
+   "title": "OP4 Dno = 7 AND Salary > 30000 AND Sex = F: chi dung chi muc hep nhat (Dno)",
+   "plan": "Bitmap Heap Scan on employee",
+   "cost": 2737.63,
+   "est_rows": 1176,
+   "act_rows": 1223.0,
+   "blocks": 1609,
+   "ms": 1.476,
+   "ms_all": [
+    1.543,
+    1.449,
+    1.476,
+    1.439,
+    1.476
+   ]
+  },
+  {
+   "label": "6d",
+   "title": "OP4 voi OR, ca hai dieu kien co chi muc: hop hai tap ket qua",
+   "plan": "Bitmap Heap Scan on employee",
+   "cost": 2853.93,
+   "est_rows": 4519,
+   "act_rows": 4746.0,
+   "blocks": 2219,
+   "ms": 1.899,
+   "ms_all": [
+    1.878,
+    1.823,
+    1.939,
+    1.899,
+    2.415
+   ]
+  },
+  {
+   "label": "6e",
+   "title": "OP4 voi OR, Address khong co chi muc: buoc phai quet ca bang",
+   "plan": "Seq Scan on employee",
+   "cost": 5629.12,
+   "est_rows": 30262,
+   "act_rows": 27190.0,
+   "blocks": 2629,
+   "ms": 22.759,
+   "ms_all": [
+    22.759,
+    22.24,
+    25.268,
+    24.397,
+    22.615
+   ]
+  },
+  {
+   "label": "6f",
+   "title": "OP7 dieu kien tren bieu thuc Salary*12, chua co chi muc ham",
+   "plan": "Seq Scan on employee",
+   "cost": 5629.12,
+   "est_rows": 66669,
+   "act_rows": 411.0,
+   "blocks": 2629,
+   "ms": 27.841,
+   "ms_all": [
+    29.549,
+    27.297,
+    26.882,
+    29.59,
+    27.841
+   ]
+  },
+  {
+   "label": "6g",
+   "title": "OP7 sau khi tao chi muc ham tren (Salary*12)",
+   "plan": "Bitmap Heap Scan on employee",
+   "cost": 1019.49,
+   "est_rows": 368,
+   "act_rows": 411.0,
+   "blocks": 390,
+   "ms": 0.339,
+   "ms_all": [
+    0.333,
+    0.339,
+    0.323,
+    0.349,
+    0.35
+   ]
+  }
+ ]
+}

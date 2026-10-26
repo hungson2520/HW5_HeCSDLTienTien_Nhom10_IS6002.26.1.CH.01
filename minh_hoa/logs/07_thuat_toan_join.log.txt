@@ -1,0 +1,125 @@
+>>> [7a] OP6 EMPLOYEE JOIN DEPARTMENT, bo toi uu tu chon
+                                                           QUERY PLAN                                                            
+---------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=6200.77..6200.78 rows=1 width=40) (actual time=50.946..50.947 rows=1.00 loops=1)
+   Buffers: shared hit=2630
+   ->  Hash Join  (cost=2.12..5200.73 rows=200008 width=6) (actual time=0.036..36.681 rows=200008.00 loops=1)
+         Hash Cond: (e.dno = d.dnumber)
+         Buffers: shared hit=2630
+         ->  Seq Scan on employee e  (cost=0.00..4629.08 rows=200008 width=10) (actual time=0.009..7.497 rows=200008.00 loops=1)
+               Buffers: shared hit=2629
+         ->  Hash  (cost=1.50..1.50 rows=50 width=4) (actual time=0.019..0.020 rows=50.00 loops=1)
+               Buckets: 1024  Batches: 1  Memory Usage: 10kB
+               Buffers: shared hit=1
+               ->  Seq Scan on department d  (cost=0.00..1.50 rows=50 width=4) (actual time=0.008..0.011 rows=50.00 loops=1)
+                     Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=199 read=1
+ Planning Time: 3.195 ms
+ Execution Time: 51.013 ms
+(16 rows)
+
+>>> [7b] OP6 ep J1 nested-loop join
+                                                           QUERY PLAN                                                            
+---------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=152754.39..152754.40 rows=1 width=40) (actual time=289.017..289.017 rows=1.00 loops=1)
+   Buffers: shared hit=2630
+   ->  Nested Loop  (cost=0.00..151754.35 rows=200008 width=6) (actual time=0.017..268.983 rows=200008.00 loops=1)
+         Join Filter: (e.dno = d.dnumber)
+         Rows Removed by Join Filter: 3152206
+         Buffers: shared hit=2630
+         ->  Seq Scan on employee e  (cost=0.00..4629.08 rows=200008 width=10) (actual time=0.008..7.097 rows=200008.00 loops=1)
+               Buffers: shared hit=2629
+         ->  Materialize  (cost=0.00..1.75 rows=50 width=4) (actual time=0.000..0.000 rows=16.76 loops=200008)
+               Storage: Memory  Maximum Storage: 18kB
+               Buffers: shared hit=1
+               ->  Seq Scan on department d  (cost=0.00..1.50 rows=50 width=4) (actual time=0.004..0.007 rows=50.00 loops=1)
+                     Buffers: shared hit=1
+ Planning Time: 0.106 ms
+ Execution Time: 289.044 ms
+(15 rows)
+
+>>> [7c] OP6 ep J2 index nested-loop join
+                                                                   QUERY PLAN                                                                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=17169.54..17169.55 rows=1 width=40) (actual time=92.441..92.441 rows=1.00 loops=1)
+   Buffers: shared hit=82581 read=172
+   ->  Nested Loop  (cost=42.09..16169.49 rows=200008 width=6) (actual time=1.887..77.484 rows=200008.00 loops=1)
+         Buffers: shared hit=82581 read=172
+         ->  Seq Scan on department d  (cost=0.00..1.50 rows=50 width=4) (actual time=0.007..0.021 rows=50.00 loops=1)
+               Buffers: shared hit=1
+         ->  Bitmap Heap Scan on employee e  (cost=42.09..282.54 rows=4082 width=10) (actual time=0.305..1.213 rows=4000.16 loops=50)
+               Recheck Cond: (dno = d.dnumber)
+               Heap Blocks: exact=82490
+               Buffers: shared hit=82580 read=172
+               ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..41.07 rows=4082 width=0) (actual time=0.181..0.181 rows=4000.16 loops=50)
+                     Index Cond: (dno = d.dnumber)
+                     Index Searches: 50
+                     Buffers: shared hit=90 read=172
+ Planning Time: 0.103 ms
+ Execution Time: 92.470 ms
+(16 rows)
+
+>>> [7d] OP6 ep J3 sort-merge join
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=17620.06..17620.07 rows=1 width=40) (actual time=80.228..80.229 rows=1.00 loops=1)
+   Buffers: shared hit=82663
+   ->  Merge Join  (cost=0.43..16620.02 rows=200008 width=6) (actual time=0.015..65.657 rows=200008.00 loops=1)
+         Merge Cond: (e.dno = d.dnumber)
+         Buffers: shared hit=82663
+         ->  Index Scan using idx_employee_dno on employee e  (cost=0.29..14110.90 rows=200008 width=10) (actual time=0.006..42.691 rows=200008.00 loops=1)
+               Index Searches: 1
+               Buffers: shared hit=82661
+         ->  Index Only Scan using department_pkey on department d  (cost=0.14..8.89 rows=50 width=4) (actual time=0.006..0.019 rows=50.00 loops=1)
+               Heap Fetches: 0
+               Index Searches: 1
+               Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=4
+ Planning Time: 0.112 ms
+ Execution Time: 80.255 ms
+(16 rows)
+
+>>> [7e] EMPLOYEE JOIN WORKS_ON (1 trieu dong), bo toi uu tu chon
+                                                               QUERY PLAN                                                               
+----------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=42844.52..42844.53 rows=1 width=40) (actual time=474.988..474.990 rows=1.00 loops=1)
+   Buffers: shared hit=8999, temp read=2571 written=2571
+   ->  Hash Join  (cost=8106.18..37844.44 rows=1000016 width=5) (actual time=50.368..398.959 rows=1000016.00 loops=1)
+         Hash Cond: (w.essn = e.ssn)
+         Buffers: shared hit=8999, temp read=2571 written=2571
+         ->  Seq Scan on works_on w  (cost=0.00..16370.16 rows=1000016 width=15) (actual time=0.017..82.227 rows=1000016.00 loops=1)
+               Buffers: shared hit=6370
+         ->  Hash  (cost=4629.08..4629.08 rows=200008 width=10) (actual time=50.065..50.066 rows=200008.00 loops=1)
+               Buckets: 262144  Batches: 2  Memory Usage: 6140kB
+               Buffers: shared hit=2629, temp written=367
+               ->  Seq Scan on employee e  (cost=0.00..4629.08 rows=200008 width=10) (actual time=0.006..13.385 rows=200008.00 loops=1)
+                     Buffers: shared hit=2629
+ Planning:
+   Buffers: shared hit=114
+ Planning Time: 1.481 ms
+ Execution Time: 475.516 ms
+(16 rows)
+
+>>> [7f] EMPLOYEE JOIN WORKS_ON ep J3 sort-merge join
+                                                                         QUERY PLAN                                                                          
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=72281.10..72281.11 rows=1 width=40) (actual time=326.978..326.979 rows=1.00 loops=1)
+   Buffers: shared hit=19848
+   ->  Merge Join  (cost=1.14..67281.02 rows=1000016 width=5) (actual time=0.020..249.875 rows=1000016.00 loops=1)
+         Merge Cond: (e.ssn = w.essn)
+         Buffers: shared hit=19848
+         ->  Index Only Scan using employee_pkey on employee e  (cost=0.42..9172.54 rows=200008 width=10) (actual time=0.006..17.802 rows=200008.00 loops=1)
+               Heap Fetches: 0
+               Index Searches: 1
+               Buffers: shared hit=1536
+         ->  Index Scan using pk_works_on on works_on w  (cost=0.42..45204.98 rows=1000016 width=15) (actual time=0.012..107.558 rows=1000016.00 loops=1)
+               Index Searches: 1
+               Buffers: shared hit=18312
+ Planning:
+   Buffers: shared hit=16
+ Planning Time: 0.255 ms
+ Execution Time: 327.016 ms
+(16 rows)
+

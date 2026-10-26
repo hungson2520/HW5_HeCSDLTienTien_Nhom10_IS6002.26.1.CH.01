@@ -1,0 +1,58 @@
+>>> [3a] Khong hop nhat: tinh ca view (1 trieu dong) roi moi join
+                                                              QUERY PLAN                                                               
+---------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=24191.36..46816.78 rows=200 width=102) (actual time=15.736..488.015 rows=202.00 loops=1)
+   Hash Cond: (v.essn = e.ssn)
+   Buffers: shared hit=9015, temp written=4696
+   CTE v
+     ->  Hash Join  (cost=61.00..19061.76 rows=1000016 width=27) (actual time=0.381..199.656 rows=1000016.00 loops=1)
+           Hash Cond: (w.pno = p.pnumber)
+           Buffers: shared hit=6386
+           ->  Seq Scan on works_on w  (cost=0.00..16370.16 rows=1000016 width=19) (actual time=0.014..40.797 rows=1000016.00 loops=1)
+                 Buffers: shared hit=6370
+           ->  Hash  (cost=36.00..36.00 rows=2000 width=16) (actual time=0.354..0.355 rows=2000.00 loops=1)
+                 Buckets: 2048  Batches: 1  Memory Usage: 114kB
+                 Buffers: shared hit=16
+                 ->  Seq Scan on project p  (cost=0.00..36.00 rows=2000 width=16) (actual time=0.010..0.176 rows=2000.00 loops=1)
+                       Buffers: shared hit=16
+   ->  CTE Scan on v  (cost=0.00..20000.32 rows=1000016 width=130) (actual time=0.383..410.083 rows=1000016.00 loops=1)
+         Storage: Disk  Maximum Storage: 37568kB
+         Buffers: shared hit=6386, temp written=4696
+   ->  Hash  (cost=5129.10..5129.10 rows=40 width=22) (actual time=15.343..15.344 rows=41.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 11kB
+         Buffers: shared hit=2629
+         ->  Seq Scan on employee e  (cost=0.00..5129.10 rows=40 width=22) (actual time=0.007..15.326 rows=41.00 loops=1)
+               Filter: ((lname)::text = 'Smith'::text)
+               Rows Removed by Filter: 199967
+               Buffers: shared hit=2629
+ Planning:
+   Buffers: shared hit=329
+ Planning Time: 3.624 ms
+ Execution Time: 497.830 ms
+(28 rows)
+
+>>> [3b] Hop nhat: PostgreSQL gop view vao cau chinh
+                                                                QUERY PLAN                                                                
+------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.70..5805.37 rows=200 width=29) (actual time=0.045..11.102 rows=202.00 loops=1)
+   Buffers: shared hit=3399
+   ->  Nested Loop  (cost=0.42..5746.35 rows=200 width=21) (actual time=0.038..10.872 rows=202.00 loops=1)
+         Buffers: shared hit=2793
+         ->  Seq Scan on employee e  (cost=0.00..5129.10 rows=40 width=22) (actual time=0.029..10.560 rows=41.00 loops=1)
+               Filter: ((lname)::text = 'Smith'::text)
+               Rows Removed by Filter: 199967
+               Buffers: shared hit=2629
+         ->  Index Scan using pk_works_on on works_on w  (cost=0.42..15.38 rows=5 width=19) (actual time=0.006..0.007 rows=4.93 loops=41)
+               Index Cond: (essn = e.ssn)
+               Index Searches: 41
+               Buffers: shared hit=164
+   ->  Index Scan using project_pkey on project p  (cost=0.28..0.30 rows=1 width=16) (actual time=0.001..0.001 rows=1.00 loops=202)
+         Index Cond: (pnumber = w.pno)
+         Index Searches: 202
+         Buffers: shared hit=606
+ Planning:
+   Buffers: shared hit=22
+ Planning Time: 0.340 ms
+ Execution Time: 11.128 ms
+(20 rows)
+

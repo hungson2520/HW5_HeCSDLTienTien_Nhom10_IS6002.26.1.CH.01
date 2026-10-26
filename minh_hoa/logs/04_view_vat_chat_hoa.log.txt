@@ -1,0 +1,42 @@
+>>> [4a] Tinh tu bang goc moi lan hoi
+                                                           QUERY PLAN                                                            
+---------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=6700.79..6701.41 rows=50 width=48) (actual time=68.488..68.497 rows=50.00 loops=1)
+   Group Key: d.dname
+   Batches: 1  Memory Usage: 40kB
+   Buffers: shared hit=2630
+   ->  Hash Join  (cost=2.12..5200.73 rows=200008 width=14) (actual time=0.026..37.066 rows=200008.00 loops=1)
+         Hash Cond: (e.dno = d.dnumber)
+         Buffers: shared hit=2630
+         ->  Seq Scan on employee e  (cost=0.00..4629.08 rows=200008 width=10) (actual time=0.009..6.716 rows=200008.00 loops=1)
+               Buffers: shared hit=2629
+         ->  Hash  (cost=1.50..1.50 rows=50 width=12) (actual time=0.013..0.013 rows=50.00 loops=1)
+               Buckets: 1024  Batches: 1  Memory Usage: 11kB
+               Buffers: shared hit=1
+               ->  Seq Scan on department d  (cost=0.00..1.50 rows=50 width=12) (actual time=0.004..0.008 rows=50.00 loops=1)
+                     Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=4
+ Planning Time: 0.112 ms
+ Execution Time: 68.526 ms
+(18 rows)
+
+>>> [4b] Doc tu view vat chat hoa
+                                                  QUERY PLAN                                                  
+--------------------------------------------------------------------------------------------------------------
+ Seq Scan on mv_dept_info  (cost=0.00..16.40 rows=640 width=98) (actual time=0.007..0.008 rows=50.00 loops=1)
+   Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=11
+ Planning Time: 0.731 ms
+ Execution Time: 0.013 ms
+(6 rows)
+
+--- Tang luong 1 nguoi: view van giu so cu
+ trong_view | trong_bang_goc 
+------------+----------------
+   55000.00 |       56000.00
+(1 row)
+
+>>> [4c] REFRESH: tinh lai ca view
+Time: 59.381 ms

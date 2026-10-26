@@ -1,0 +1,108 @@
+{
+ "file": "07_thuat_toan_join.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "7a",
+   "title": "OP6 EMPLOYEE JOIN DEPARTMENT, bo toi uu tu chon",
+   "plan": "Aggregate → Hash Join",
+   "cost": 6200.78,
+   "est_rows": 200008,
+   "act_rows": 200008.0,
+   "blocks": 2630,
+   "ms": 51.013,
+   "ms_all": [
+    50.295,
+    49.222,
+    51.387,
+    51.114,
+    51.013
+   ]
+  },
+  {
+   "label": "7b",
+   "title": "OP6 ep J1 nested-loop join",
+   "plan": "Aggregate → Nested Loop",
+   "cost": 152754.4,
+   "est_rows": 200008,
+   "act_rows": 200008.0,
+   "blocks": 2630,
+   "ms": 294.898,
+   "ms_all": [
+    294.898,
+    307.329,
+    302.873,
+    293.214,
+    289.044
+   ]
+  },
+  {
+   "label": "7c",
+   "title": "OP6 ep J2 index nested-loop join",
+   "plan": "Aggregate → Nested Loop",
+   "cost": 17169.55,
+   "est_rows": 200008,
+   "act_rows": 200008.0,
+   "blocks": 82753,
+   "ms": 92.441,
+   "ms_all": [
+    92.83,
+    91.52,
+    92.441,
+    92.205,
+    92.47
+   ]
+  },
+  {
+   "label": "7d",
+   "title": "OP6 ep J3 sort-merge join",
+   "plan": "Aggregate → Merge Join",
+   "cost": 17620.07,
+   "est_rows": 200008,
+   "act_rows": 200008.0,
+   "blocks": 82663,
+   "ms": 81.574,
+   "ms_all": [
+    81.879,
+    81.752,
+    80.565,
+    81.574,
+    80.255
+   ]
+  },
+  {
+   "label": "7e",
+   "title": "EMPLOYEE JOIN WORKS_ON (1 trieu dong), bo toi uu tu chon",
+   "plan": "Aggregate → Hash Join",
+   "cost": 42844.53,
+   "est_rows": 1000016,
+   "act_rows": 1000016.0,
+   "blocks": 8999,
+   "ms": 485.003,
+   "ms_all": [
+    510.123,
+    476.823,
+    485.111,
+    485.003,
+    475.516
+   ]
+  },
+  {
+   "label": "7f",
+   "title": "EMPLOYEE JOIN WORKS_ON ep J3 sort-merge join",
+   "plan": "Aggregate → Merge Join",
+   "cost": 72281.11,
+   "est_rows": 1000016,
+   "act_rows": 1000016.0,
+   "blocks": 19848,
+   "ms": 327.016,
+   "ms_all": [
+    679.447,
+    325.703,
+    324.318,
+    327.857,
+    327.016
+   ]
+  }
+ ]
+}

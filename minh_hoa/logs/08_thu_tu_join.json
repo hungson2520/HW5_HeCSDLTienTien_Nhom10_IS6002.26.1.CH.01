@@ -1,0 +1,57 @@
+{
+ "file": "08_thu_tu_join.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "8a",
+   "title": "Bo toi uu tu chon thu tu",
+   "plan": "Nested Loop",
+   "cost": 123.68,
+   "est_rows": 12,
+   "act_rows": 12.0,
+   "blocks": 61,
+   "ms": 0.165,
+   "ms_all": [
+    0.168,
+    0.178,
+    0.163,
+    0.165,
+    0.165
+   ]
+  },
+  {
+   "label": "8b",
+   "title": "Thu tu 3 cua sach: (DEPARTMENT JOIN EMPLOYEE) JOIN PROJECT",
+   "plan": "Hash Join",
+   "cost": 444.79,
+   "est_rows": 12,
+   "act_rows": 12.0,
+   "blocks": 213,
+   "ms": 0.136,
+   "ms_all": [
+    0.138,
+    0.143,
+    0.134,
+    0.135,
+    0.136
+   ]
+  },
+  {
+   "label": "8c",
+   "title": "Thu tu co tich Descartes: (PROJECT x EMPLOYEE) JOIN DEPARTMENT",
+   "plan": "Hash Join",
+   "cost": 47253.33,
+   "est_rows": 12,
+   "act_rows": 12.0,
+   "blocks": 2642,
+   "ms": 414.729,
+   "ms_all": [
+    420.822,
+    406.651,
+    414.729,
+    413.542,
+    424.628
+   ]
+  }
+ ]
+}

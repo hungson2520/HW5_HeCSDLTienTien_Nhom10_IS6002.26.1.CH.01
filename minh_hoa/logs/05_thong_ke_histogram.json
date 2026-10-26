@@ -1,0 +1,96 @@
+{
+ "file": "05_thong_ke_histogram.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "5a",
+   "title": "Thong ke cot Dno trong catalog: so gia tri khac nhau, gia tri hay gap",
+   "plan": null,
+   "cost": null,
+   "est_rows": null,
+   "act_rows": null,
+   "blocks": null,
+   "ms": null,
+   "ms_all": []
+  },
+  {
+   "label": "5b",
+   "title": "Histogram cot Salary (do cao bang nhau, 100 ngan): cac moc cach 10 ngan",
+   "plan": null,
+   "cost": null,
+   "est_rows": null,
+   "act_rows": null,
+   "blocks": null,
+   "ms": null,
+   "ms_all": []
+  },
+  {
+   "label": "5c",
+   "title": "Dno = 1: uoc tinh dung 1 dong => dung chi muc",
+   "plan": "Index Scan using idx_employee_dno on employee",
+   "cost": 8.31,
+   "est_rows": 1,
+   "act_rows": 1.0,
+   "blocks": 3,
+   "ms": 0.05,
+   "ms_all": [
+    0.05,
+    0.056,
+    0.05,
+    0.051,
+    0.049
+   ]
+  },
+  {
+   "label": "5d",
+   "title": "Dno = 5: uoc tinh dung ~60.000 dong => doi ke hoach",
+   "plan": "Bitmap Heap Scan on employee",
+   "cost": 4060.79,
+   "est_rows": 60222,
+   "act_rows": 59953.0,
+   "blocks": 2681,
+   "ms": 10.611,
+   "ms_all": [
+    10.919,
+    9.25,
+    10.781,
+    10.611,
+    10.175
+   ]
+  },
+  {
+   "label": "5e",
+   "title": "Thong ke CU: van tuong phong 1 co 1 nguoi",
+   "plan": "Aggregate → Nested Loop",
+   "cost": 23.91,
+   "est_rows": 4,
+   "act_rows": 299758.0,
+   "blocks": 242981,
+   "ms": 197.869,
+   "ms_all": [
+    236.775,
+    196.29,
+    198.736,
+    197.869,
+    196.108
+   ]
+  },
+  {
+   "label": "5f",
+   "title": "Sau ANALYZE: uoc tinh dung, doi ke hoach",
+   "plan": "Aggregate → Hash Join",
+   "cost": 26132.21,
+   "est_rows": 299273,
+   "act_rows": 299758.0,
+   "blocks": 7207,
+   "ms": 168.045,
+   "ms_all": [
+    170.879,
+    168.045,
+    169.568,
+    165.212,
+    166.967
+   ]
+  }
+ ]
+}

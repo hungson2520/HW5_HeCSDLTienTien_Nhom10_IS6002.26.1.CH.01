@@ -1,0 +1,59 @@
+>>> [11a] Hoi luong am, chua dung rang buoc: van quet ca bang
+                                                   QUERY PLAN                                                    
+-----------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=5129.14..5129.15 rows=1 width=8) (actual time=22.286..22.286 rows=1.00 loops=1)
+   Buffers: shared hit=2629
+   ->  Seq Scan on employee  (cost=0.00..5129.10 rows=16 width=0) (actual time=22.276..22.276 rows=0.00 loops=1)
+         Filter: (salary < '0'::numeric)
+         Rows Removed by Filter: 200008
+         Buffers: shared hit=2629
+ Planning:
+   Buffers: shared hit=54
+ Planning Time: 1.090 ms
+ Execution Time: 22.362 ms
+(10 rows)
+
+>>> [11b] Hoi luong am, dung rang buoc CHECK: biet truoc la rong, khong doc bang
+                                         QUERY PLAN                                          
+---------------------------------------------------------------------------------------------
+ Aggregate  (cost=0.00..0.01 rows=1 width=8) (actual time=0.001..0.001 rows=1.00 loops=1)
+   ->  Result  (cost=0.00..0.00 rows=0 width=0) (actual time=0.000..0.000 rows=0.00 loops=1)
+         One-Time Filter: false
+ Planning:
+   Buffers: shared hit=12
+ Planning Time: 0.107 ms
+ Execution Time: 0.010 ms
+(7 rows)
+
+>>> [11c] Vi du 2 cua sach: join DEPARTMENT nhung khong lay cot nao cua no (PostgreSQL van join)
+                                                       QUERY PLAN                                                       
+------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=2.12..5294.07 rows=57186 width=12) (actual time=0.043..26.244 rows=57117.00 loops=1)
+   Hash Cond: (employee.dno = department.dnumber)
+   Buffers: shared hit=2630
+   ->  Seq Scan on employee  (cost=0.00..5129.10 rows=57186 width=16) (actual time=0.010..19.547 rows=57117.00 loops=1)
+         Filter: (salary > '100000'::numeric)
+         Rows Removed by Filter: 142891
+         Buffers: shared hit=2629
+   ->  Hash  (cost=1.50..1.50 rows=50 width=4) (actual time=0.024..0.025 rows=50.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 10kB
+         Buffers: shared hit=1
+         ->  Seq Scan on department  (cost=0.00..1.50 rows=50 width=4) (actual time=0.012..0.016 rows=50.00 loops=1)
+               Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=182
+ Planning Time: 1.831 ms
+ Execution Time: 27.420 ms
+(16 rows)
+
+>>> [11d] Viet bang LEFT JOIN: PostgreSQL tu bo bang DEPARTMENT (Dnumber la khoa chinh)
+                                                     QUERY PLAN                                                     
+--------------------------------------------------------------------------------------------------------------------
+ Seq Scan on employee e  (cost=0.00..5129.10 rows=57186 width=12) (actual time=0.010..20.275 rows=57117.00 loops=1)
+   Filter: (salary > '100000'::numeric)
+   Rows Removed by Filter: 142891
+   Buffers: shared hit=2629
+ Planning Time: 0.081 ms
+ Execution Time: 21.538 ms
+(6 rows)
+

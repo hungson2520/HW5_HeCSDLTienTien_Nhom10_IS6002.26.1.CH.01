@@ -1,0 +1,52 @@
+>>> [9a] Ke hoach rieng cho phong 1 (1 nguoi)
+                                                               QUERY PLAN                                                                
+-----------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=140.47..140.48 rows=1 width=40) (actual time=0.062..0.062 rows=1.00 loops=1)
+   Buffers: shared hit=5 read=2
+   ->  Nested Loop  (cost=4.77..140.29 rows=35 width=5) (actual time=0.051..0.052 rows=1.00 loops=1)
+         Buffers: shared hit=5 read=2
+         ->  Bitmap Heap Scan on employee e  (cost=4.35..31.35 rows=7 width=10) (actual time=0.041..0.041 rows=1.00 loops=1)
+               Recheck Cond: (dno = 1)
+               Heap Blocks: exact=1
+               Buffers: shared hit=1 read=2
+               ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..4.35 rows=7 width=0) (actual time=0.033..0.033 rows=1.00 loops=1)
+                     Index Cond: (dno = 1)
+                     Index Searches: 1
+                     Buffers: shared read=2
+         ->  Index Scan using pk_works_on on works_on w  (cost=0.42..15.51 rows=5 width=15) (actual time=0.006..0.006 rows=1.00 loops=1)
+               Index Cond: (essn = e.ssn)
+               Index Searches: 1
+               Buffers: shared hit=4
+ Planning:
+   Buffers: shared hit=197 read=1
+ Planning Time: 3.011 ms
+ Execution Time: 0.110 ms
+(20 rows)
+
+>>> [9b] Ke hoach chung (dung lai cho moi phong), chay cho phong 1
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=21994.22..21994.23 rows=1 width=40) (actual time=101.757..101.759 rows=1.00 loops=1)
+   Buffers: shared hit=6373
+   ->  Hash Join  (cost=2898.96..21894.21 rows=20000 width=5) (actual time=0.051..101.755 rows=1.00 loops=1)
+         Hash Cond: (w.essn = e.ssn)
+         Buffers: shared hit=6373
+         ->  Seq Scan on works_on w  (cost=0.00..16370.16 rows=1000016 width=15) (actual time=0.013..40.355 rows=1000016.00 loops=1)
+               Buffers: shared hit=6370
+         ->  Hash  (cost=2848.96..2848.96 rows=4000 width=10) (actual time=0.022..0.023 rows=1.00 loops=1)
+               Buckets: 4096  Batches: 1  Memory Usage: 33kB
+               Buffers: shared hit=3
+               ->  Bitmap Heap Scan on employee e  (cost=47.30..2848.96 rows=4000 width=10) (actual time=0.019..0.019 rows=1.00 loops=1)
+                     Recheck Cond: (dno = $1)
+                     Heap Blocks: exact=1
+                     Buffers: shared hit=3
+                     ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..46.30 rows=4000 width=0) (actual time=0.003..0.003 rows=1.00 loops=1)
+                           Index Cond: (dno = $1)
+                           Index Searches: 1
+                           Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=16
+ Planning Time: 0.122 ms
+ Execution Time: 101.785 ms
+(22 rows)
+

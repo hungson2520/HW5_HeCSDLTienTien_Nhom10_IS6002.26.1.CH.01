@@ -1,0 +1,40 @@
+{
+ "file": "09_luu_dem_ke_hoach.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "9a",
+   "title": "Ke hoach rieng cho phong 1 (1 nguoi)",
+   "plan": "Aggregate → Nested Loop",
+   "cost": 140.48,
+   "est_rows": 35,
+   "act_rows": 1.0,
+   "blocks": 7,
+   "ms": 0.113,
+   "ms_all": [
+    0.11,
+    0.113,
+    0.118,
+    0.116,
+    0.11
+   ]
+  },
+  {
+   "label": "9b",
+   "title": "Ke hoach chung (dung lai cho moi phong), chay cho phong 1",
+   "plan": "Aggregate → Hash Join",
+   "cost": 21994.23,
+   "est_rows": 20000,
+   "act_rows": 1.0,
+   "blocks": 6373,
+   "ms": 101.785,
+   "ms_all": [
+    102.635,
+    108.247,
+    99.293,
+    97.503,
+    101.785
+   ]
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+>>> [10a] Chua toi uu: sap xep ca bang (khong du bo nho => sap xep ngoai, Muc 18.2)
+                                                        QUERY PLAN                                                        
+--------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=27027.48..27527.50 rows=200008 width=28) (actual time=91.869..120.101 rows=200008.00 loops=1)
+   Sort Key: salary DESC
+   Sort Method: external merge  Disk: 7896kB
+   Buffers: shared hit=2632, temp read=987 written=990
+   ->  Seq Scan on employee  (cost=0.00..4629.08 rows=200008 width=28) (actual time=0.013..21.620 rows=200008.00 loops=1)
+         Buffers: shared hit=2629
+ Planning:
+   Buffers: shared hit=87
+ Planning Time: 1.102 ms
+ Execution Time: 141.381 ms
+(10 rows)
+
+>>> [10b] LIMIT 10, chua co chi muc: chi giu 10 dong tot nhat (top-N heapsort)
+                                                           QUERY PLAN                                                           
+--------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=8951.18..8951.21 rows=10 width=28) (actual time=43.584..43.586 rows=10.00 loops=1)
+   Buffers: shared hit=2629
+   ->  Sort  (cost=8951.18..9451.20 rows=200008 width=28) (actual time=43.583..43.584 rows=10.00 loops=1)
+         Sort Key: salary DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=2629
+         ->  Seq Scan on employee  (cost=0.00..4629.08 rows=200008 width=28) (actual time=0.008..16.827 rows=200008.00 loops=1)
+               Buffers: shared hit=2629
+ Planning Time: 0.052 ms
+ Execution Time: 43.598 ms
+(10 rows)
+
+>>> [10c] LIMIT 10, co chi muc tren Salary: doc 10 dong cuoi cua chi muc roi dung
+                                                                        QUERY PLAN                                                                         
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.42..1.21 rows=10 width=28) (actual time=0.048..0.056 rows=10.00 loops=1)
+   Buffers: shared hit=10 read=3
+   ->  Index Scan Backward using idx_employee_salary on employee  (cost=0.42..15724.49 rows=200008 width=28) (actual time=0.047..0.054 rows=10.00 loops=1)
+         Index Searches: 1
+         Buffers: shared hit=10 read=3
+ Planning:
+   Buffers: shared hit=16 read=1
+ Planning Time: 0.962 ms
+ Execution Time: 0.068 ms
+(9 rows)
+

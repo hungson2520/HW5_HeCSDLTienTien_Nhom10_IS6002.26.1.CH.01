@@ -1,0 +1,74 @@
+{
+ "file": "11_toi_uu_ngu_nghia.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "11a",
+   "title": "Hoi luong am, chua dung rang buoc: van quet ca bang",
+   "plan": "Aggregate → Seq Scan on employee",
+   "cost": 5129.15,
+   "est_rows": 16,
+   "act_rows": 0.0,
+   "blocks": 2629,
+   "ms": 21.938,
+   "ms_all": [
+    21.195,
+    21.128,
+    21.938,
+    22.217,
+    22.362
+   ]
+  },
+  {
+   "label": "11b",
+   "title": "Hoi luong am, dung rang buoc CHECK: biet truoc la rong, khong doc bang",
+   "plan": "Aggregate → Result",
+   "cost": 0.01,
+   "est_rows": null,
+   "act_rows": null,
+   "blocks": 12,
+   "ms": 0.01,
+   "ms_all": [
+    0.01,
+    0.01,
+    0.01,
+    0.009,
+    0.01
+   ]
+  },
+  {
+   "label": "11c",
+   "title": "Vi du 2 cua sach: join DEPARTMENT nhung khong lay cot nao cua no (PostgreSQL van join)",
+   "plan": "Hash Join",
+   "cost": 5294.07,
+   "est_rows": 57186,
+   "act_rows": 57117.0,
+   "blocks": 2630,
+   "ms": 27.508,
+   "ms_all": [
+    27.615,
+    27.508,
+    27.405,
+    28.879,
+    27.42
+   ]
+  },
+  {
+   "label": "11d",
+   "title": "Viet bang LEFT JOIN: PostgreSQL tu bo bang DEPARTMENT (Dnumber la khoa chinh)",
+   "plan": "Seq Scan on employee e",
+   "cost": 5129.1,
+   "est_rows": 57186,
+   "act_rows": 57117.0,
+   "blocks": 2629,
+   "ms": 21.121,
+   "ms_all": [
+    21.121,
+    20.975,
+    21.005,
+    22.096,
+    21.538
+   ]
+  }
+ ]
+}

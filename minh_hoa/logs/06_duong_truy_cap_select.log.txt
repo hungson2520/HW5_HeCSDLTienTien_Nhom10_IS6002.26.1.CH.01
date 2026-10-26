@@ -1,0 +1,111 @@
+--- Thong so cho ham chi phi (Muc 19.4): b = so khoi cua EMPLOYEE, x = so tang chi muc khoa chinh
+  b   | x 
+------+---
+ 2629 | 3
+(1 row)
+
+>>> [6a] OP1 Ssn = 123456789, khong dung chi muc (S1 quet ca bang: CS1 = b khoi)
+                                                QUERY PLAN                                                
+----------------------------------------------------------------------------------------------------------
+ Seq Scan on employee  (cost=0.00..5129.10 rows=1 width=70) (actual time=0.012..12.958 rows=1.00 loops=1)
+   Filter: (ssn = '123456789'::bpchar)
+   Rows Removed by Filter: 200007
+   Buffers: shared hit=2629
+ Planning:
+   Buffers: shared hit=81 read=3
+ Planning Time: 2.160 ms
+ Execution Time: 12.975 ms
+(8 rows)
+
+>>> [6b] OP1, dung chi muc khoa chinh (S6a: CS6a = x + 1 khoi)
+                                                         QUERY PLAN                                                         
+----------------------------------------------------------------------------------------------------------------------------
+ Index Scan using employee_pkey on employee  (cost=0.42..8.44 rows=1 width=70) (actual time=0.016..0.016 rows=1.00 loops=1)
+   Index Cond: (ssn = '123456789'::bpchar)
+   Index Searches: 1
+   Buffers: shared hit=4
+ Planning Time: 0.037 ms
+ Execution Time: 0.023 ms
+(6 rows)
+
+>>> [6c] OP4 Dno = 7 AND Salary > 30000 AND Sex = F: chi dung chi muc hep nhat (Dno)
+                                                            QUERY PLAN                                                             
+-----------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on employee  (cost=30.19..2737.63 rows=1176 width=70) (actual time=0.318..1.436 rows=1223.00 loops=1)
+   Recheck Cond: (dno = 7)
+   Filter: ((salary > '30000'::numeric) AND (sex = 'F'::bpchar))
+   Rows Removed by Filter: 1250
+   Heap Blocks: exact=1605
+   Buffers: shared hit=1605 read=4
+   ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..29.90 rows=2347 width=0) (actual time=0.191..0.191 rows=2473.00 loops=1)
+         Index Cond: (dno = 7)
+         Index Searches: 1
+         Buffers: shared read=4
+ Planning:
+   Buffers: shared hit=19 read=3
+ Planning Time: 0.219 ms
+ Execution Time: 1.476 ms
+(14 rows)
+
+>>> [6d] OP4 voi OR, ca hai dieu kien co chi muc: hop hai tap ket qua
+                                                                 QUERY PLAN                                                                 
+--------------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on employee  (cost=77.06..2853.93 rows=4519 width=70) (actual time=0.520..2.208 rows=4746.00 loops=1)
+   Recheck Cond: ((dno = 7) OR (salary > '450000'::numeric))
+   Heap Blocks: exact=2206
+   Buffers: shared hit=2213 read=6
+   ->  BitmapOr  (cost=77.06..77.06 rows=4545 width=0) (actual time=0.336..0.337 rows=0.00 loops=1)
+         Buffers: shared hit=7 read=6
+         ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..29.90 rows=2347 width=0) (actual time=0.115..0.115 rows=2473.00 loops=1)
+               Index Cond: (dno = 7)
+               Index Searches: 1
+               Buffers: shared hit=4
+         ->  Bitmap Index Scan on idx_employee_salary  (cost=0.00..44.91 rows=2198 width=0) (actual time=0.221..0.221 rows=2293.00 loops=1)
+               Index Cond: (salary > '450000'::numeric)
+               Index Searches: 1
+               Buffers: shared hit=3 read=6
+ Planning:
+   Buffers: shared hit=2 read=2
+ Planning Time: 0.088 ms
+ Execution Time: 2.415 ms
+(18 rows)
+
+>>> [6e] OP4 voi OR, Address khong co chi muc: buoc phai quet ca bang
+                                                    QUERY PLAN                                                    
+------------------------------------------------------------------------------------------------------------------
+ Seq Scan on employee  (cost=0.00..5629.12 rows=30262 width=70) (actual time=0.008..21.920 rows=27190.00 loops=1)
+   Filter: ((dno = 7) OR ((address)::text ~~ '%Katy%'::text))
+   Rows Removed by Filter: 172818
+   Buffers: shared hit=2629
+ Planning Time: 0.062 ms
+ Execution Time: 22.615 ms
+(6 rows)
+
+>>> [6f] OP7 dieu kien tren bieu thuc Salary*12, chua co chi muc ham
+                                                   QUERY PLAN                                                   
+----------------------------------------------------------------------------------------------------------------
+ Seq Scan on employee  (cost=0.00..5629.12 rows=66669 width=12) (actual time=0.017..27.824 rows=411.00 loops=1)
+   Filter: ((salary * '12'::numeric) > '5900000'::numeric)
+   Rows Removed by Filter: 199597
+   Buffers: shared hit=2629
+ Planning Time: 0.033 ms
+ Execution Time: 27.841 ms
+(6 rows)
+
+>>> [6g] OP7 sau khi tao chi muc ham tren (Salary*12)
+                                                              QUERY PLAN                                                               
+---------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on employee  (cost=11.27..1019.49 rows=368 width=12) (actual time=0.094..0.329 rows=411.00 loops=1)
+   Recheck Cond: ((salary * '12'::numeric) > '5900000'::numeric)
+   Heap Blocks: exact=386
+   Buffers: shared hit=389 read=1
+   ->  Bitmap Index Scan on idx_employee_luong_nam  (cost=0.00..11.18 rows=368 width=0) (actual time=0.058..0.058 rows=411.00 loops=1)
+         Index Cond: ((salary * '12'::numeric) > '5900000'::numeric)
+         Index Searches: 1
+         Buffers: shared hit=3 read=1
+ Planning:
+   Buffers: shared hit=12 read=4
+ Planning Time: 0.250 ms
+ Execution Time: 0.350 ms
+(12 rows)
+

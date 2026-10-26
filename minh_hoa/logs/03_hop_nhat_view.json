@@ -1,0 +1,40 @@
+{
+ "file": "03_hop_nhat_view.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "3a",
+   "title": "Khong hop nhat: tinh ca view (1 trieu dong) roi moi join",
+   "plan": "Hash Join",
+   "cost": 46816.78,
+   "est_rows": 200,
+   "act_rows": 202.0,
+   "blocks": 9015,
+   "ms": 497.83,
+   "ms_all": [
+    492.499,
+    504.555,
+    514.857,
+    495.976,
+    497.83
+   ]
+  },
+  {
+   "label": "3b",
+   "title": "Hop nhat: PostgreSQL gop view vao cau chinh",
+   "plan": "Nested Loop",
+   "cost": 5805.37,
+   "est_rows": 200,
+   "act_rows": 202.0,
+   "blocks": 3399,
+   "ms": 11.218,
+   "ms_all": [
+    11.224,
+    10.896,
+    11.218,
+    11.682,
+    11.128
+   ]
+  }
+ ]
+}

@@ -1,0 +1,94 @@
+>>> [8a] Bo toi uu tu chon thu tu
+                                                                  QUERY PLAN                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=6.92..123.68 rows=12 width=38) (actual time=0.091..0.119 rows=12.00 loops=1)
+   Buffers: shared hit=59 read=2
+   ->  Hash Join  (cost=6.50..22.43 rows=12 width=18) (actual time=0.081..0.089 rows=12.00 loops=1)
+         Hash Cond: (project.dnum = department.dnumber)
+         Buffers: shared hit=11 read=2
+         ->  Bitmap Heap Scan on project  (cost=4.37..20.27 rows=12 width=8) (actual time=0.044..0.050 rows=12.00 loops=1)
+               Recheck Cond: ((plocation)::text = 'Stafford'::text)
+               Heap Blocks: exact=10
+               Buffers: shared hit=10 read=2
+               ->  Bitmap Index Scan on idx_project_plocation  (cost=0.00..4.37 rows=12 width=0) (actual time=0.035..0.035 rows=12.00 loops=1)
+                     Index Cond: ((plocation)::text = 'Stafford'::text)
+                     Index Searches: 1
+                     Buffers: shared read=2
+         ->  Hash  (cost=1.50..1.50 rows=50 width=14) (actual time=0.028..0.028 rows=50.00 loops=1)
+               Buckets: 1024  Batches: 1  Memory Usage: 11kB
+               Buffers: shared hit=1
+               ->  Seq Scan on department  (cost=0.00..1.50 rows=50 width=14) (actual time=0.015..0.018 rows=50.00 loops=1)
+                     Buffers: shared hit=1
+   ->  Index Scan using employee_pkey on employee  (cost=0.42..8.44 rows=1 width=40) (actual time=0.002..0.002 rows=1.00 loops=12)
+         Index Cond: (ssn = department.mgr_ssn)
+         Index Searches: 12
+         Buffers: shared hit=48
+ Planning:
+   Buffers: shared hit=242 read=1
+ Planning Time: 2.408 ms
+ Execution Time: 0.165 ms
+(26 rows)
+
+>>> [8b] Thu tu 3 cua sach: (DEPARTMENT JOIN EMPLOYEE) JOIN PROJECT
+                                                                  QUERY PLAN                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=20.84..444.79 rows=12 width=38) (actual time=0.039..0.119 rows=12.00 loops=1)
+   Hash Cond: (d.dnumber = p.dnum)
+   Buffers: shared hit=213
+   ->  Nested Loop  (cost=0.42..423.38 rows=50 width=34) (actual time=0.014..0.089 rows=50.00 loops=1)
+         Buffers: shared hit=201
+         ->  Seq Scan on department d  (cost=0.00..1.50 rows=50 width=14) (actual time=0.008..0.010 rows=50.00 loops=1)
+               Buffers: shared hit=1
+         ->  Index Scan using employee_pkey on employee e  (cost=0.42..8.44 rows=1 width=40) (actual time=0.001..0.001 rows=1.00 loops=50)
+               Index Cond: (ssn = d.mgr_ssn)
+               Index Searches: 50
+               Buffers: shared hit=200
+   ->  Hash  (cost=20.27..20.27 rows=12 width=8) (actual time=0.020..0.020 rows=12.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 9kB
+         Buffers: shared hit=12
+         ->  Bitmap Heap Scan on project p  (cost=4.37..20.27 rows=12 width=8) (actual time=0.012..0.016 rows=12.00 loops=1)
+               Recheck Cond: ((plocation)::text = 'Stafford'::text)
+               Heap Blocks: exact=10
+               Buffers: shared hit=12
+               ->  Bitmap Index Scan on idx_project_plocation  (cost=0.00..4.37 rows=12 width=0) (actual time=0.005..0.005 rows=12.00 loops=1)
+                     Index Cond: ((plocation)::text = 'Stafford'::text)
+                     Index Searches: 1
+                     Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=12
+ Planning Time: 0.135 ms
+ Execution Time: 0.136 ms
+(26 rows)
+
+>>> [8c] Thu tu co tich Descartes: (PROJECT x EMPLOYEE) JOIN DEPARTMENT
+                                                                     QUERY PLAN                                                                      
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=6.62..47253.33 rows=12 width=38) (actual time=0.068..424.608 rows=12.00 loops=1)
+   Hash Cond: ((p.dnum = d.dnumber) AND (e.ssn = d.mgr_ssn))
+   Buffers: shared hit=2642
+   ->  Nested Loop  (cost=4.37..34650.58 rows=2400096 width=48) (actual time=0.017..280.132 rows=2400096.00 loops=1)
+         Buffers: shared hit=2641
+         ->  Seq Scan on employee e  (cost=0.00..4629.08 rows=200008 width=40) (actual time=0.004..10.044 rows=200008.00 loops=1)
+               Buffers: shared hit=2629
+         ->  Materialize  (cost=4.37..20.33 rows=12 width=8) (actual time=0.000..0.000 rows=12.00 loops=200008)
+               Storage: Memory  Maximum Storage: 17kB
+               Buffers: shared hit=12
+               ->  Bitmap Heap Scan on project p  (cost=4.37..20.27 rows=12 width=8) (actual time=0.009..0.013 rows=12.00 loops=1)
+                     Recheck Cond: ((plocation)::text = 'Stafford'::text)
+                     Heap Blocks: exact=10
+                     Buffers: shared hit=12
+                     ->  Bitmap Index Scan on idx_project_plocation  (cost=0.00..4.37 rows=12 width=0) (actual time=0.004..0.004 rows=12.00 loops=1)
+                           Index Cond: ((plocation)::text = 'Stafford'::text)
+                           Index Searches: 1
+                           Buffers: shared hit=2
+   ->  Hash  (cost=1.50..1.50 rows=50 width=14) (actual time=0.037..0.037 rows=50.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 11kB
+         Buffers: shared hit=1
+         ->  Seq Scan on department d  (cost=0.00..1.50 rows=50 width=14) (actual time=0.007..0.030 rows=50.00 loops=1)
+               Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=12
+ Planning Time: 0.104 ms
+ Execution Time: 424.628 ms
+(27 rows)
+

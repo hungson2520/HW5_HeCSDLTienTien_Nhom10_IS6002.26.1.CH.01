@@ -1,0 +1,152 @@
+>>> [2a] Chua toi uu: EXISTS chay lai cho tung nhan vien (OFFSET 0 cam khu long)
+                                                       QUERY PLAN                                                       
+------------------------------------------------------------------------------------------------------------------------
+ Seq Scan on employee e  (cost=0.00..354643.08 rows=100004 width=18) (actual time=0.025..702.385 rows=83037.00 loops=1)
+   Filter: EXISTS(SubPlan 1)
+   Rows Removed by Filter: 116971
+   Buffers: shared hit=202637
+   SubPlan 1
+     ->  Seq Scan on department d  (cost=0.00..1.75 rows=1 width=30) (actual time=0.002..0.002 rows=0.42 loops=200008)
+           Filter: ((dnumber = e.dno) AND (zipcode = 30332))
+           Rows Removed by Filter: 33
+           Buffers: shared hit=200008
+ Planning:
+   Buffers: shared hit=102 read=1
+ Planning Time: 2.762 ms
+ Execution Time: 705.035 ms
+(13 rows)
+
+>>> [2b] Da khu long: cung cau do, PostgreSQL doi thanh join
+                                                        QUERY PLAN                                                         
+---------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=1.75..5200.35 rows=40002 width=18) (actual time=0.026..28.064 rows=83037.00 loops=1)
+   Hash Cond: (e.dno = d.dnumber)
+   Buffers: shared hit=2630
+   ->  Seq Scan on employee e  (cost=0.00..4629.08 rows=200008 width=22) (actual time=0.008..6.585 rows=200008.00 loops=1)
+         Buffers: shared hit=2629
+   ->  Hash  (cost=1.62..1.62 rows=10 width=4) (actual time=0.011..0.012 rows=10.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 9kB
+         Buffers: shared hit=1
+         ->  Seq Scan on department d  (cost=0.00..1.62 rows=10 width=4) (actual time=0.004..0.007 rows=10.00 loops=1)
+               Filter: (zipcode = 30332)
+               Rows Removed by Filter: 40
+               Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=103
+ Planning Time: 0.507 ms
+ Execution Time: 29.847 ms
+(16 rows)
+
+>>> [2c] Semi-join: so phong co nguoi luong > 200000 (Q(SJ) Muc 18.1.1)
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=119.77..119.78 rows=1 width=8) (actual time=0.866..0.867 rows=1.00 loops=1)
+   Buffers: shared hit=453 read=50
+   ->  Nested Loop Semi Join  (cost=0.29..119.65 rows=49 width=0) (actual time=0.057..0.856 rows=49.00 loops=1)
+         Buffers: shared hit=453 read=50
+         ->  Seq Scan on department d  (cost=0.00..1.50 rows=50 width=4) (actual time=0.006..0.009 rows=50.00 loops=1)
+               Buffers: shared hit=1
+         ->  Index Scan using idx_employee_dno on employee e  (cost=0.29..301.68 rows=290 width=4) (actual time=0.017..0.017 rows=0.98 loops=50)
+               Index Cond: (dno = d.dnumber)
+               Filter: (salary > '200000'::numeric)
+               Rows Removed by Filter: 11
+               Index Searches: 50
+               Buffers: shared hit=452 read=50
+ Planning:
+   Buffers: shared hit=14
+ Planning Time: 0.181 ms
+ Execution Time: 0.890 ms
+(16 rows)
+
+--- Vi sao phai la SEMI-join: dung inner join thi dem sai
+ semi_join_dung | inner_join_sai 
+----------------+----------------
+             49 |          14013
+(1 row)
+
+>>> [2d] Anti-join: so nhan vien KHONG thuoc phong o zip 30332 (Q(AJ), viet bang NOT EXISTS)
+                                                                          QUERY PLAN                                                                           
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=5005.51..5005.52 rows=1 width=8) (actual time=25.933..25.933 rows=1.00 loops=1)
+   Buffers: shared hit=53 read=122
+   ->  Merge Anti Join  (cost=0.43..4605.49 rows=160006 width=0) (actual time=0.097..22.085 rows=116971.00 loops=1)
+         Merge Cond: (e.dno = d.dnumber)
+         Buffers: shared hit=53 read=122
+         ->  Index Only Scan using idx_employee_dno on employee e  (cost=0.29..3692.41 rows=200008 width=4) (actual time=0.089..10.589 rows=200008.00 loops=1)
+               Heap Fetches: 0
+               Index Searches: 1
+               Buffers: shared hit=51 read=122
+         ->  Index Scan using department_pkey on department d  (cost=0.14..13.02 rows=10 width=4) (actual time=0.006..0.014 rows=10.00 loops=1)
+               Filter: (zipcode = 30332)
+               Rows Removed by Filter: 40
+               Index Searches: 1
+               Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=4
+ Planning Time: 0.094 ms
+ Execution Time: 25.954 ms
+(18 rows)
+
+--- Luu y: PostgreSQL khong doi NOT IN thanh anti-join vi NULL
+ khong_co_null | co_null 
+---------------+---------
+ t             | 
+(1 row)
+
+>>> [2e] Chua toi uu: luong cao hon trung binh phong minh (phong 7), AVG tinh lai cho tung nguoi
+                                                                     QUERY PLAN                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using idx_employee_dno on employee e  (cost=0.29..7851971.34 rows=916 width=12) (actual time=3.579..2380.329 rows=783.00 loops=1)
+   Index Cond: (dno = 7)
+   Filter: (salary > (SubPlan 1))
+   Rows Removed by Filter: 1690
+   Index Searches: 1
+   Buffers: shared hit=3980666
+   SubPlan 1
+     ->  Aggregate  (cost=2855.75..2855.76 rows=1 width=32) (actual time=0.961..0.961 rows=1.00 loops=2473)
+           Buffers: shared hit=3979057
+           ->  Bitmap Heap Scan on employee e2  (cost=47.93..2845.54 rows=4082 width=6) (actual time=0.217..0.717 rows=2473.00 loops=2473)
+                 Recheck Cond: (dno = e.dno)
+                 Heap Blocks: exact=3969165
+                 Buffers: shared hit=3979057
+                 ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..46.91 rows=4082 width=0) (actual time=0.103..0.103 rows=2473.00 loops=2473)
+                       Index Cond: (dno = e.dno)
+                       Index Searches: 2473
+                       Buffers: shared hit=9892
+ Planning:
+   Buffers: shared hit=9
+ Planning Time: 0.082 ms
+ Execution Time: 2380.430 ms
+(21 rows)
+
+>>> [2f] Tu viet lai (PostgreSQL khong tu lam duoc): tinh AVG moi phong mot lan roi join
+                                                                  QUERY PLAN                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=67.17..5643.36 rows=916 width=12) (actual time=1.210..2.041 rows=783.00 loops=1)
+   Join Filter: (e.salary > (avg(employee.salary)))
+   Rows Removed by Join Filter: 1690
+   Buffers: shared hit=3218
+   ->  GroupAggregate  (cost=33.58..2807.95 rows=1 width=36) (actual time=0.970..0.971 rows=1.00 loops=1)
+         Buffers: shared hit=1609
+         ->  Bitmap Heap Scan on employee  (cost=33.58..2801.07 rows=2747 width=10) (actual time=0.221..0.720 rows=2473.00 loops=1)
+               Recheck Cond: (dno = 7)
+               Heap Blocks: exact=1605
+               Buffers: shared hit=1609
+               ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..32.90 rows=2747 width=0) (actual time=0.104..0.104 rows=2473.00 loops=1)
+                     Index Cond: (dno = 7)
+                     Index Searches: 1
+                     Buffers: shared hit=4
+   ->  Bitmap Heap Scan on employee e  (cost=33.58..2801.07 rows=2747 width=16) (actual time=0.236..0.806 rows=2473.00 loops=1)
+         Recheck Cond: (dno = 7)
+         Heap Blocks: exact=1605
+         Buffers: shared hit=1609
+         ->  Bitmap Index Scan on idx_employee_dno  (cost=0.00..32.90 rows=2747 width=0) (actual time=0.121..0.121 rows=2473.00 loops=1)
+               Index Cond: (dno = 7)
+               Index Searches: 1
+               Buffers: shared hit=4
+ Planning:
+   Buffers: shared hit=52
+ Planning Time: 0.148 ms
+ Execution Time: 2.111 ms
+(26 rows)
+

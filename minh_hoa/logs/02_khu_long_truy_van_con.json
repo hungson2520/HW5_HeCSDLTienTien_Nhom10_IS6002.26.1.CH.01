@@ -1,0 +1,108 @@
+{
+ "file": "02_khu_long_truy_van_con.sql",
+ "times": 5,
+ "steps": [
+  {
+   "label": "2a",
+   "title": "Chua toi uu: EXISTS chay lai cho tung nhan vien (OFFSET 0 cam khu long)",
+   "plan": "Seq Scan on employee e",
+   "cost": 354643.08,
+   "est_rows": 100004,
+   "act_rows": 83037.0,
+   "blocks": 202637,
+   "ms": 696.297,
+   "ms_all": [
+    696.297,
+    684.905,
+    677.008,
+    704.743,
+    705.035
+   ]
+  },
+  {
+   "label": "2b",
+   "title": "Da khu long: cung cau do, PostgreSQL doi thanh join",
+   "plan": "Hash Join",
+   "cost": 5200.35,
+   "est_rows": 40002,
+   "act_rows": 83037.0,
+   "blocks": 2630,
+   "ms": 29.449,
+   "ms_all": [
+    28.56,
+    28.885,
+    29.449,
+    29.754,
+    29.847
+   ]
+  },
+  {
+   "label": "2c",
+   "title": "Semi-join: so phong co nguoi luong > 200000 (Q(SJ) Muc 18.1.1)",
+   "plan": "Aggregate → Nested Loop Semi Join",
+   "cost": 119.78,
+   "est_rows": 49,
+   "act_rows": 49.0,
+   "blocks": 503,
+   "ms": 0.907,
+   "ms_all": [
+    1.016,
+    0.871,
+    0.927,
+    0.907,
+    0.89
+   ]
+  },
+  {
+   "label": "2d",
+   "title": "Anti-join: so nhan vien KHONG thuoc phong o zip 30332 (Q(AJ), viet bang NOT EXISTS)",
+   "plan": "Aggregate → Merge Anti Join",
+   "cost": 5005.52,
+   "est_rows": 160006,
+   "act_rows": 116971.0,
+   "blocks": 175,
+   "ms": 25.954,
+   "ms_all": [
+    26.797,
+    25.063,
+    26.078,
+    25.831,
+    25.954
+   ]
+  },
+  {
+   "label": "2e",
+   "title": "Chua toi uu: luong cao hon trung binh phong minh (phong 7), AVG tinh lai cho tung nguoi",
+   "plan": "Index Scan using idx_employee_dno on employee e",
+   "cost": 7851971.34,
+   "est_rows": 916,
+   "act_rows": 783.0,
+   "blocks": 3980666,
+   "ms": 2433.679,
+   "ms_all": [
+    2368.176,
+    2444.967,
+    2433.679,
+    2505.956,
+    2380.43
+   ]
+  },
+  {
+   "label": "2f",
+   "title": "Tu viet lai (PostgreSQL khong tu lam duoc): tinh AVG moi phong mot lan roi join",
+   "plan": "Nested Loop",
+   "cost": 5643.36,
+   "est_rows": 916,
+   "act_rows": 783.0,
+   "blocks": 3218,
+   "ms": 2.124,
+   "ms_all": [
+    2.124,
+    2.326,
+    2.081,
+    2.568,
+    2.111
+   ]
+  }
+ ]
+}
